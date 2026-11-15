@@ -3,7 +3,15 @@
 <head>
 <base target="_top">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3c7d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ujian SMKN 5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Ujian Online - SMKN 5 Banjarmasin</title>
 <style>
 :root{--navy:#0b3c7d;--navy2:#082c5c;--gold:#f5b301;--bg:#eef2f8;--card:#fff;--tx:#17233a;--mut:#5d6b84;--line:#d9e0ec;--ok:#1a9a54;--bad:#d33a3a;--warn:#e08a00;--fs:17px}
@@ -205,6 +213,38 @@ th{background:#f3f6fb;color:var(--navy);position:sticky;top:0}
  #adm-burger{display:inline-block}.adm-main{padding:10px 10px 40px}.g2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.hb{grid-template-columns:78px 1fr 50px}
  .tw table{font-size:12.5px}.adm-bar h2{font-size:18px}
 }
+
+/* HP & aplikasi terpasang */
+*{-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+button,.opt,.grid button{touch-action:manipulation}
+.top{padding-top:env(safe-area-inset-top);height:calc(58px + env(safe-area-inset-top))}
+.bottom{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.exam{padding-top:calc(70px + env(safe-area-inset-top))}
+.login-wrap,.lg{min-height:100vh;min-height:100dvh}
+.lg-form,.login-wrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+#btn-install{width:100%;margin-top:10px}
+.iosnote{font-size:12.5px;color:var(--mut);background:#eef3fb;border-radius:10px;padding:8px 10px;margin-top:10px}
+@media(max-width:860px){
+ body{font-size:15px}
+ input[type=text],input[type=password],input[type=number]{font-size:16px;padding:13px}
+ .btn{min-height:44px}.btn.sm{min-height:36px}
+ .opt{min-height:52px;border-radius:14px}.opt .l{width:32px;height:32px}
+ .qtext{font-size:calc(var(--fs) - 1px)}.qimg{max-height:300px}
+ .grid{grid-template-columns:repeat(6,1fr)}.grid button{aspect-ratio:1;font-size:15px}
+ .top{height:calc(54px + env(safe-area-inset-top))}
+ .exam{padding-top:calc(66px + env(safe-area-inset-top))}
+ body.hasbanner .exam{padding-top:calc(100px + env(safe-area-inset-top))}
+ .side{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+ .login-card,.lg-form .box{padding:20px;border-radius:16px}
+ .tokeninput{font-size:24px}
+ .stat b,.kpi b{font-size:24px}.panel{padding:12px;border-radius:12px}
+ .tok{flex-wrap:wrap}.tok b{font-size:26px}
+ .acts .btn.sm{flex:1}
+ .modal{padding:18px}.hist{height:150px}
+}
+@media(max-width:380px){.grid{grid-template-columns:repeat(5,1fr)}.timer{min-width:84px;font-size:15px}}
+@media(display-mode:standalone){.foot-link{padding-bottom:env(safe-area-inset-bottom)}}
 </style>
 </head>
 <body>
@@ -249,6 +289,8 @@ th{background:#f3f6fb;color:var(--navy);position:sticky;top:0}
    <div id="l-closed" class="msg err hide">Ujian belum dibuka oleh pengawas.</div>
    <div id="l-err" class="msg err hide"></div>
    <button id="btn-login" class="btn gold" style="width:100%;margin-top:16px;padding:13px">Masuk</button>
+   <button id="btn-install" class="btn ghost hide">📲 Pasang Aplikasi di Perangkat</button>
+   <div id="ios-note" class="iosnote hide">Di iPhone/iPad: buka lewat Safari, ketuk <b>Bagikan</b>, lalu <b>Tambahkan ke Layar Utama</b>.</div>
    <div class="foot-link"><a id="go-admin">Panel Pengawas</a></div>
   </div></div>
  </div>
@@ -823,6 +865,18 @@ function renderStat(s){
 function clk(){$('l-clock').textContent=new Date().toLocaleString('id-ID',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});}clk();setInterval(clk,30000);
 loadInfo();
 })();
+
+/* ---------- PWA: pasang aplikasi ---------- */
+(function(){
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  let dp=null;const bi=document.getElementById('btn-install');
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if(!standalone)bi.classList.remove('hide');});
+  bi.onclick=()=>{if(!dp)return;dp.prompt();dp.userChoice.then(()=>{dp=null;bi.classList.add('hide');});};
+  window.addEventListener('appinstalled',()=>bi.classList.add('hide'));
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)document.getElementById('ios-note').classList.remove('hide');
+  if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0&&window.top===window.self){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+})();
+
 </script>
 </body>
 </html>
